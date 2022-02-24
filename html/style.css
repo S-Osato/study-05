@@ -1,0 +1,13 @@
+.order-view
+{
+  width: 500px;
+  height: 250px;
+  display: block;
+  margin-top: 5px;
+}
+
+.checkout span
+{
+  width: 120px;
+  display: inline-block;
+}

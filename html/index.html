@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./style.css">
+    <title>Posシステム</title>
+  </head>
+  <body>
+      <div class="container">
+        <h2>Posシステム</h2>
+        <p>
+            <span>CSVファイル名</span>
+            <input id="csv-file" type="text" value="source.csv" >
+            <button id="read-master"　type="button" class="btn btn-primary">マスタ読み込み</button>
+        </p>
+        <p>
+            <span>商品コード</span>
+            <input type="text" id="item-code">
+            <span>個数</span>
+            <input type="text" id="item-quantity">
+            <button id="item-register"　type="button" class="btn btn-primary">登録</button>
+            <button id="show-sum"　type="button" class="btn btn-primary">合計金額表示</button>
+        </p>
+        <p>
+            <textarea class="order-view" id="order-view"></textarea>
+        </p>
+
+        <div class="checkout">
+            <p>
+                <span>合計金額</span>
+                <input id="sum-view">
+            </p>
+            <p>
+                <span>お預かり金額</span>
+                <input type="text" id="payment">
+                <button id="checkout"　type="button" class="btn btn-primary">会計</button>
+            </p>
+            <p>
+                <span>お釣り</span>
+                <input type="text" id="change-view">
+                <button id="clear"　type="button" class="btn btn-primary">クリア</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="./eel.js"></script>
+        <script>
+            let read_master = document.getElementById('read-master');
+            let item_register = document.getElementById('item-register');
+            let show_sum = document.getElementById('show-sum');
+            let item_text = "";
+            let checkout = document.getElementById('checkout');
+            let clear = document.getElementById('clear');
+
+            read_master.addEventListener('click', () => {
+                const csv_path = document.getElementById("csv-file").value;
+                if (!csv_path) {
+                    alert("csvファイル名を入力してください。");
+                }
+                else {
+                    eel.read_master(csv_path);
+                }
+            })
+
+            item_register.addEventListener('click', () => {
+                const item_code = document.getElementById("item-code").value;
+                const item_quantity = document.getElementById("item-quantity").value;
+                if (!item_code) {
+                    alert("商品コードを入力してください。");
+                }
+                else if (!item_quantity) {
+                    alert("個数を入力してください。");
+                }
+                else {
+                    eel.add_item_order(item_code, item_quantity);
+                }
+            })
+
+            show_sum.addEventListener('click', async () => {
+                const sum = await eel.get_sum()();
+                document.getElementById("sum-view").value = sum;
+            })
+
+            checkout.addEventListener('click', async () => {
+                const payment = document.getElementById("payment").value;
+                if (!payment) {
+                    alert("お預かり金額を入力してください。");
+                }
+                else {
+                    const change = await eel.checkout(payment)();
+                    document.getElementById("change-view").value = change;
+                }
+            })
+
+            clear.addEventListener('click', () => {
+                document.getElementById("item-code").value = "";
+                document.getElementById("item-quantity").value = "";
+                document.getElementById("order-view").value = "";
+                item_text = "";
+                document.getElementById("sum-view").value = "";
+                document.getElementById("payment").value = "";
+                document.getElementById("change-view").value = "";
+                eel.clear_order();
+            })
+
+            eel.expose(view_order_js)
+            function view_order_js(text){
+                item_text += text;
+                document.getElementById("order-view").value = item_text;
+            }
+
+            eel.expose(show_alert_js)
+            function show_alert_js(text){
+                alert(text);
+            }
+        </script>
+</body>
+</html>
